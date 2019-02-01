@@ -2,11 +2,21 @@
 
   <div>
     <div class="search">
-      <input type="text" class="search-input" v-model.trim="query" @keyup.enter="search()" name="search"
+      <input type="text" class="search-input" v-model.trim="query.name" @keyup.enter="search()" name="search"
              placeholder="请输入搜索内容"/>
       <img src="../../assets/search-btn.png" class="search-btn" @click="search()"/>
     </div>
-    <section class="grid has-search-bar">
+    <el-card class="box-card">
+      <el-radio-group v-model="query.video_type" class="video-filter" size="small" @change="search()">
+        <el-radio-button label="" class="choices">不限</el-radio-button>
+        <el-radio-button label="movie" class="choices">电影</el-radio-button>
+        <el-radio-button label="tvplay" class="choices">电视剧</el-radio-button>
+        <el-radio-button label="comic" class="choices">动漫</el-radio-button>
+        <el-radio-button label="varietyshow" class="choices">综艺</el-radio-button>
+      </el-radio-group>
+    </el-card>
+
+    <section class="grid has-search-bar" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
       <div>
         <div class="card">
           <router-link :to="{name: 'movie-detail', params: {id: item.mid}}" class="item"
@@ -31,10 +41,12 @@
   import Spinner  from '../../components/Spinner.vue'
   import {mapState} from 'vuex';
   import * as types from '../../store/types';
-  import {fetchMoviesByParams} from '../../store/api';
+  import {fetchMoviesByParams, fetch} from '../../store/api';
+  import InfiniteScroll from 'vue-infinite-scroll'
 
   export default{
     components: {Spinner},
+    directives: {InfiniteScroll},
     data(){
       return {
         loading: true,
@@ -45,40 +57,52 @@
           type: ''
         },
         videos: [],
-        page:1,
-        query: '',
+        query: {
+          name:'',
+          page:1,
+          video_type: '',
+        },
+        busy: false,
+        isScroll: false,
+        links: {}
       }
     },
     methods: {
+      onVideoTypeChange(val){
+        // 重置页码
+        this.query.page = 1;
+      },
       search(){
-        fetchMoviesByParams({name: this.query, page: this.page})
+        fetchMoviesByParams(this.query)
                 .then((data) => {
-                  // this.inTheater = data;
-                  // this.inTheater.type = API_TYPE.movie.in_theaters;
                   this.videos = data.data;
-                  console.log(this.videos[0])
                   this.loading = false;
+                  this.links = data.links;
                 });
+      },
+      loadMore(){
+        console.log('--loadmore--')
+        // 页码
+        if(this.links && this.links.next){
+          this.query.page++
+          this.busy = true;
+          this.isScroll = true;
+          fetchMoviesByParams(this.query)
+                  .then((data) => {
+                    this.videos = this.videos.concat(data.data);
+                    this.loading = false;
+                    this.links = data.links;
+
+                    this.loading = false;
+                    this.isScroll = false;
+                    this.busy = false;
+                  });
+        }
       }
     },
     mounted(){
       var start = 0, count = 9;
       this.search();
-      // fetchMoviesByParams()
-      //         .then((data) => {
-      //           // this.inTheater = data;
-      //           // this.inTheater.type = API_TYPE.movie.in_theaters;
-      //           this.videos = data.data;
-      //           console.log(this.videos[0])
-      //           this.loading = false;
-      //         });
-      // fetchMoviesByType(API_TYPE.movie.coming_soon, start, count)
-      //         .then((data) => {
-      //           this.comingSoon = data;
-      //           this.comingSoon.type = API_TYPE.movie.coming_soon;
-      //           this.loading = false;
-      //         });
-
     },
     updated(){
     },
@@ -105,5 +129,12 @@
     right: 5px;
     top: 9px;
   }
+}
+
+.video-filter {
+  padding-top: 10px;
+  // .choices {
+  //   padding-right: 10px;
+  // }
 }
 </style>

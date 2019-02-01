@@ -27,6 +27,16 @@
                      v-for="item in chapters">
            <el-tag>{{item.title}}</el-tag>
         </router-link>
+        <el-pagination
+        background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[10, 20, 50, 100]"
+        :page-size="20"
+        layout="total, sizes, prev, next"
+        :total="total">
+      </el-pagination>
       </section>
     </div>
     <spinner :show="loading"></spinner>
@@ -45,6 +55,12 @@
         id: '',
         movie: {},
         chapters: [],
+        currentPage: 1,
+        total: 0,
+        params: {
+          page:1,
+          page_size:20,
+        }
       }
     },
     computed: {
@@ -58,6 +74,25 @@
         return /([A-Za-z])/g.test(this.movie.original_title)? this.movie.original_title : '';
       },
     },
+    methods: {
+      handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+        this.params.page_size = val;
+        this.getChapters()
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
+        this.params.page = val;
+        this.getChapters()
+      },
+      getChapters(){
+        fetchMoviesChapters(this.id, this.params)
+                .then(data =>{
+                  this.chapters = data.data;
+                  this.total = data.count;
+                })
+      },
+    },
     mounted(){
       this.id = this.$route.params.id;
       fetchMoviesDetail(this.id)
@@ -65,10 +100,7 @@
                 this.movie = data;
                 this.loading = false;
               });
-      fetchMoviesChapters(this.id)
-              .then(data =>{
-                this.chapters = data.data;
-              })
+      this.getChapters();
 
     }
   };

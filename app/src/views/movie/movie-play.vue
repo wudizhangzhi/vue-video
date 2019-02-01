@@ -1,18 +1,21 @@
 <template>
   <div class="">
+
     <div class="detail-card">
       <d-player :options="options"
               @play="play"
               ref="player">
       </d-player>
+      <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span>{{this.chapter.title}}</span>
+      </div>
       <el-button-group>
-        <router-link :to="{name: 'movie-play', params: {mid: this.mid, cid: this.chapter_link.previous_cid.cid}}" class="item" v-if="has_previous">
-          上一集
-        </router-link>
-        <router-link :to="{name: 'movie-play', params: {mid: this.mid, cid: this.chapter_link.next_cid.cid}}" class="item" v-if="has_next">
-          下一集
-        </router-link>
+        <el-button type="primary" icon="el-icon-arrow-left" @click="playPrevious">上一集</el-button>
+        <el-button type="primary" @click="playNext">下一集<i class="el-icon-arrow-right el-icon--right"></i></el-button>
       </el-button-group>
+    </el-card>
+
       <spinner :show="loading"></spinner>
     </div>
   </div>
@@ -66,9 +69,17 @@
       },
     },
     methods: {
+      // 播放按钮点击事件
       play() {
         console.log('play callback')
       },
+      playNext(){
+        this.playByMidCid(this.mid, this.chapter_link.next_cid.cid);
+      },
+      playPrevious(){
+        this.playByMidCid(this.mid, this.chapter_link.previous_cid.cid);
+      },
+      // 播放
       playByMidCid(mid, cid){
         this.mid = mid;
         this.cid = cid;

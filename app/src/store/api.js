@@ -60,9 +60,9 @@ export function fetchMoviesDetail(mid){
   return fetch(url)
 }
 
-export function fetchMoviesChapters(mid){
+export function fetchMoviesChapters(mid, params){
   let url = encodeURI(`/api/spider/videos/${mid}/chapters/`);
-  return fetch(url)
+  return fetch(url, params)
 }
 
 export function fetchMoviesChaptersDetail(mid, cid){

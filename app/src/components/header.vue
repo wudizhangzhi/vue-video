@@ -4,10 +4,10 @@
       <div class="TalionNav-primary">
         <nav>
           <ul>
-            <li><a href="#/movies" style="color: #2384E8;">电影</a></li>
+            <li><a href="#/movies" style="color: #2384E8;">仅供学习以及亲朋好友使用</a></li>
             <!--<li><a href="#/book/search" style="color: #9F7860;">图书</a></li>-->
           </ul>
-          <span class="search"></span></nav>
+        </nav>
       </div>
     </header>
     <!-- <div class="search">
