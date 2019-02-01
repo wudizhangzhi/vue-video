@@ -68,11 +68,12 @@
       }
     },
     methods: {
-      onVideoTypeChange(val){
-        // 重置页码
-        this.query.page = 1;
-      },
+      // onVideoTypeChange(val){
+      //   // 重置页码
+      //   this.query.page = 1;
+      // },
       search(){
+        this.query.page = 1;
         fetchMoviesByParams(this.query)
                 .then((data) => {
                   this.videos = data.data;
